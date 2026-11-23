@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crypto Trader</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+  body { background: #050505; color: #e0e0e0; padding: 20px; }
+  h1 { color: #ffd700; text-shadow: 0 0 20px #ffd700; text-align: center; margin-bottom: 20px; }
+  .container { max-width: 1000px; margin: 0 auto; }
+  .hidden { display: none !important; }
+  #intro, #nameScreen { position: fixed; inset: 0; background: #050505; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999; text-align: center; padding: 20px; }
+  #intro h2, #nameScreen h2 { color: #ffd700; margin-bottom: 20px; }
+  #intro h2 { color: #ff4444; }
+  input { padding: 10px; font-size: 16px; border-radius: 6px; border: 2px solid #ffd700; background: #111; color: #fff; margin-bottom: 10px; text-align: center; }
+  .btn { background: transparent; border: 2px solid #ffd700; color: #ffd700; padding: 12px 30px; cursor: pointer; border-radius: 6px; font-weight: bold; font-size: 16px; transition: 0.3s; }
+  .btn:hover { background: #ffd700; color: #000; box-shadow: 0 0 20px #ffd700; }
+  .tabs { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
+  .tab { background: #111; color: #888; border: 2px solid #222; padding: 10px 20px; cursor: pointer; border-radius: 6px; font-weight: bold; }
+  .tab.active { background: #ffd700; color: #000; border-color: #ffd700; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  .layout { display: flex; gap: 20px; flex-wrap: wrap; }
+  .left-panel { width: 280px; }
+  .coin-list { display: flex; flex-direction: column; gap: 8px; max-height: 400px; overflow-y: auto; }
+  .coin-item { display: flex; justify-content: space-between; background: #111; border: 1px solid #222; padding: 10px; border-radius: 8px; cursor: pointer; }
+  .coin-item.active { border-color: #ffd700; background: #1a1500; }
+  .coin-name { font-weight: bold; }
+  .coin-price { color: #ffd700; font-size: 12px; }
+  .up { color: #00ff88; } .down { color: #ff4444; }
+  .right-panel { flex: 1; min-width: 300px; }
+  .stats { display: flex; justify-content: space-around; background: #111; padding: 15px; border-radius: 10px; border: 1px solid #222; margin-bottom: 10px; }
+  .stat .value { color: #ffd700; font-size: 20px; font-weight: bold; }
+  #chart { background: #090909; border: 1px solid #222; border-radius: 10px; width: 100%; height: 250px; margin-bottom: 10px; }
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 10px; }
+  .btn-buy { border-color: #00ff88; color: #00ff88; }
+  .btn-buy:hover { background: #00ff88; }
+  .btn-sell { border-color: #ff4444; color: #ff4444; }
+  .btn-sell:hover { background: #ff4444; }
+  .log { background: #090909; border: 1px solid #222; padding: 10px; height: 100px; overflow-y: auto; font-size: 12px; border-radius: 8px; }
+  .news-box { background: #111; border: 1px solid #222; padding: 10px; border-radius: 8px; margin-bottom: 10px; border-left: 3px solid #ffd700; }
+  .news-text { color: #ffd700; font-weight: bold; }
+  .news-text.bad { color: #ff4444; }
+  .gift-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
+  .gift-card { background: #111; border: 1px solid #222; padding: 15px; border-radius: 10px; text-align: center; }
+  .gift-emoji { font-size: 40px; margin-bottom: 10px; }
+  .gift-buy, .gift-sell { background: transparent; border: 1px solid #ffd700; color: #ffd700; padding: 8px; width: 100%; border-radius: 6px; cursor: pointer; margin-top: 10px; font-weight: bold; }
+  .gift-buy:hover { background: #ffd700; color: #000; }
+  .gift-sell { border-color: #ff4444; color: #ff4444; }
+  .gift-sell:hover { background: #ff4444; color: #000; }
+  .profile-header { background: #111; padding: 20px; border-radius: 10px; border: 1px solid #222; margin-bottom: 20px; display: flex; gap: 20px; align-items: center; }
+  .avatar { font-size: 50px; }
+  .profile-name { color: #ffd700; font-size: 24px; font-weight: bold; }
+  .tg-float { position: fixed; bottom: 20px; right: 20px; background: #0088cc; color: #fff; padding: 10px 15px; border-radius: 20px; text-decoration: none; font-weight: bold; display: flex; align-items: center; gap: 5px; }
+</style>
+</head>
+<body>
+
+<a href="https://t.me/EmirAkhytGames" target="_blank" class="tg-float">📢 Мой канал</a>
+
+<div id="intro">
+  <h2>ИГРА СДЕЛАНА В ИСКЛЮЧИТЕЛЬНО РАЗВЛЕКАТЕЛЬНЫХ ЦЕЛЯХ!<br><span style="font-size:14px; color:#888;">ОТСЮДА НЕЛЬЗЯ ВЫВЕСТИ ВАЛЮТУ!</span></h2>
+  <button id="startBtn" class="btn">ПРОДОЛЖИТЬ</button>
+</div>
+
+<div id="nameScreen" class="hidden">
+  <h2>ВВЕДИ СВОЙ НИК</h2>
+  <input type="text" id="nameInput" placeholder="Ник..." maxlength="15">
+  <button id="confirmNameBtn" class="btn">ПОДТВЕРДИТЬ</button>
+  <div id="nameError" style="color:red; margin-top:10px;"></div>
+</div>
+
+<div class="container hidden" id="mainGame">
+  <h1>₿ CRYPTO TRADER</h1>
+  <div class="tabs">
+    <button class="tab active" data-tab="market">РЫНОК</button>
+    <button class="tab" data-tab="shop">ПОДАРКИ</button>
+    <button class="tab" data-tab="craft">КРАФТ</button>
+    <button class="tab" data-tab="profile">ПРОФИЛЬ</button>
+  </div>
+
+  <div class="tab-content active" id="market">
+    <div class="layout">
+      <div class="left-panel"><div class="coin-list" id="coinList"></div></div>
+      <div class="right-panel">
+        <div class="news-box"><div class="news-text" id="newsText">Ожидание новостей...</div></div>
+        <div class="stats">
+          <div class="stat"><div class="label">БАЛАНС</div><div class="value" id="balance">$1000</div></div>
+          <div class="stat"><div class="label">МОНЕТ</div><div class="value" id="coins">0</div></div>
+          <div class="stat"><div class="label">ЦЕНА</div><div class="value" id="price">$0</div></div>
+        </div>
+        <canvas id="chart" width="800" height="250"></canvas>
+        <div class="controls">
+          <input type="number" id="amount" value="1" min="1" style="width:80px;">
+          <button class="btn btn-buy" id="buyBtn">КУПИТЬ</button>
+          <button class="btn btn-sell" id="sellBtn">ПРОДАТЬ</button>
+        </div>
+        <div class="log" id="log"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="shop"><div class="gift-grid" id="giftGrid"></div></div>
+  <div class="tab-content" id="craft"><h3 style="color:#ffd700; margin-bottom:15px;">КРАФТ</h3><div class="gift-grid" id="craftGrid"></div></div>
+  
+  <div class="tab-content" id="profile">
+    <div class="profile-header">
+      <div class="avatar">🧑‍💻</div>
+      <div><div class="profile-name" id="profileName">Трейдер</div><div>Баланс: <span id="profileBalance" style="color:#00ff88;">$1000</span></div></div>
+    </div>
+    <h3 style="color:#ffd700; margin-bottom:15px;">МОИ ПОДАРКИ</h3>
+    <div class="gift-grid" id="myGifts"></div>
+  </div>
+</div>
+
+<script>
+// ВСЯ ИГРА В ОДНОМ СКРИПТЕ
+const COINS = [
+  { name: "TON", color: "#0098EA", price: 5.0, vol: 0.10 }, { name: "Pepe", color: "#4CAF50", price: 0.00001, vol: 0.25 },
+  { name: "Doug", color: "#FF9800", price: 0.001, vol: 0.20 }, { name: "BTC", color: "#F7931A", price: 60000, vol: 0.05 },
+  { name: "ETH", color: "#627EEA", price: 3000, vol: 0.07 }, { name: "SOL", color: "#9945FF", price: 150, vol: 0.12 },
+  { name: "DOGE", color: "#C2A633", price: 0.1, vol: 0.18 }, { name: "NOT", color: "#FFF", price: 0.015, vol: 0.22 },
+  { name: "LTC", color: "#345D9D", price: 80, vol: 0.08 }, { name: "ADA", color: "#0033AD", price: 0.45, vol: 0.11 },
+  { name: "XRP", color: "#23292F", price: 0.60, vol: 0.09 }, { name: "SHIB", color: "#F00500", price: 0.00002, vol: 0.30 }
+];
+
+const GIFTS = [
+    { id: "bear", name: "Мишка", emoji: "🧸", price: 50 }, { id: "heart", name: "Сердце", emoji: "❤️", price: 30 },
+  { id: "rose", name: "Роза", emoji: "🌹", price: 25 }, { id: "rocket", name: "Ракета", emoji: "🚀", price: 100 },
+  { id: "crown", name: "Корона", emoji: "👑", price: 200 }, { id: "diamond", name: "Алмаз", emoji: "💎", price: 300 },
+  { id: "star", name: "Звезда", emoji: "⭐", price: 75 }, { id: "cake", name: "Торт", emoji: "🎂", price: 40 },
+  { id: "super_rocket", name: "Супер Ракета", emoji: "🛸", price: 0 }, { id: "heart_eyes", name: "Влюбленный", emoji: "😍", price: 0 }
+];
+
+const CRAFT_RECIPES = [
+  { result: "super_rocket", requires: ["rocket", "star", "rocket"] },
+  { result: "heart_eyes", requires: ["heart", "heart", "heart"] }
+];
+
+const NEWS = [
+  { text: "Илон Маск запостил {coin}!", type: "good", boost: 0.5 },
+  { text: "Крупный фонд купил {coin}!", type: "good", boost: 0.8 },
+  { text: "Взлом биржи! {coin} падает!", type: "bad", boost: -0.4 },
+  { text: "Китай запретил {coin}!", type: "bad", boost: -0.6 }
+];
+
+let balance = 1000;
+let holdings = {};
+let prices = {};
+let histories = {};
+let currentCoin = "TON";
+let ownedGifts = [];
+let playerName = "";
+
+// Инициализация
+COINS.forEach(c => {
+  holdings[c.name] = 0;
+  prices[c.name] = c.price;
+  histories[c.name] = [c.price];
+});
+
+function fmt(p) { if (p >= 1000) return '$' + p.toFixed(0); if (p >= 1) return '$' + p.toFixed(2); if (p >= 0.01) return '$' + p.toFixed(4); return '$' + p.toFixed(8); }
+function logMsg(msg, cls) { const el = document.getElementById('log'); if (el) { const div = document.createElement('div'); div.className = cls; div.textContent = '> ' + msg; el.prepend(div); } }
+
+function saveGame() {
+  localStorage.setItem("crypto_save", JSON.stringify({ balance, holdings, prices, histories, ownedGifts, currentCoin, playerName }));
+}
+function loadGame() {
+  const raw = localStorage.getItem("crypto_save");
+  if (!raw) return false;
+  const data = JSON.parse(raw);
+  balance = data.balance || 1000;
+  holdings = data.holdings || {};
+  prices = data.prices || {};
+  histories = data.histories || {};
+  ownedGifts = data.ownedGifts || [];
+  currentCoin = data.currentCoin || "TON";
+  playerName = data.playerName || "";
+  return !!playerName;
+}
+
+function renderCoinList() {
+  const list = document.getElementById('coinList'); if (!list) return; list.innerHTML = '';
+  COINS.forEach(c => {
+    const hist = histories[c.name] || [c.price];
+    const prev = hist.length > 1 ? hist[hist.length - 2] : hist[0];
+    const cur = prices[c.name] || c.price;
+    const change = prev ? ((cur - prev) / prev) * 100 : 0;
+    const div = document.createElement('div'); div.className = 'coin-item' + (c.name === currentCoin ? ' active' : '');
+    div.onclick = () => { currentCoin = c.name; renderCoinList(); updateUI(); drawChart(); };
+    div.innerHTML = `<div><div class="coin-name" style="color:${c.color}">${c.name}</div><div class="coin-price">${fmt(cur)}</div></div><div class="${change >= 0 ? 'up' : 'down'}">${change >= 0 ? '▲' : '▼'} ${Math.abs(change).toFixed(1)}%</div>`;
+    list.appendChild(div);
+  });
+}
+
+function updateUI() {
+  const b = document.getElementById('balance'); if (b) b.textContent = '$' + balance.toFixed(2);
+  const c = document.getElementById('coins'); if (c) c.textContent = (holdings[currentCoin] || 0).toFixed(4);
+  const p = document.getElementById('price'); if (p) p.textContent = fmt(prices[currentCoin] || 0);
+  const pb = document.getElementById('profileBalance'); if (pb) pb.textContent = '$' + balance.toFixed(2);
+}
+
+function drawChart() {
+  const chart = document.getElementById('chart'); if (!chart) return;
+  const ctx = chart.getContext('2d'); const w = chart.width, h = chart.height;
+  ctx.clearRect(0, 0, w, h); ctx.strokeStyle = '#222';
+  for (let i = 0; i < 5; i++) { ctx.beginPath(); ctx.moveTo(0, (h/5)*i); ctx.lineTo(w, (h/5)*i); ctx.stroke(); }
+  const history = histories[currentCoin] || []; if (history.length < 2) return;
+  const min = Math.min(...history), max = Math.max(...history); const range = max - min || 1;
+  const coin = COINS.find(c => c.name === currentCoin) || COINS[0];
+  ctx.strokeStyle = coin.color; ctx.lineWidth = 2; ctx.beginPath();
+  history.forEach((p, i) => { const x = (i / (history.length - 1)) * w; const y = h - ((p - min) / range) * (h - 20) - 10; if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); });
+  ctx.stroke();
+}
+
+function updatePrices() {
+  COINS.forEach(c => {
+    const prev = prices[c.name] || c.price;
+    const change = (Math.random() - 0.5) * c.vol * 2;
+    prices[c.name] = Math.max(0.00000001, prev * (1 + change));
+    if (!histories[c.name]) histories[c.name] = [prev];
+    histories[c.name].push(prices[c.name]);
+    if (histories[c.name].length > 100) histories[c.name].shift();
+  });
+  renderCoinList(); updateUI(); drawChart(); saveGame();
+}
+
+function triggerNews() {
+  const newsBox = document.getElementById('newsText'); if (!newsBox) return;
+  const event = NEWS[Math.floor(Math.random() * NEWS.length)];
+  const coin = COINS[Math.floor(Math.random() * COINS.length)];
+  newsBox.textContent = event.text.replace("{coin}", coin.name);
+  newsBox.className = 'news-text ' + (event.type === 'bad' ? 'bad' : '');
+  prices[coin.name] = Math.max(0.00000001, prices[coin.name] * (1 + event.boost));
+  histories[coin.name].push(prices[coin.name]);
+  renderCoinList(); updateUI(); drawChart(); saveGame();
+}
+
+function buy() {
+  const amount = parseFloat(document.getElementById('amount').value); if (isNaN(amount) || amount <= 0) return;
+  const cost = prices[currentCoin] * amount; if (cost > balance) { logMsg('Нет средств!', 'info'); return; }
+  balance -= cost; holdings[currentCoin] = (holdings[currentCoin] || 0) + amount;
+  logMsg(`Куплено ${amount} ${currentCoin}`, 'buy'); updateUI(); saveGame();
+}
+
+function sell() {
+  const amount = parseFloat(document.getElementById('amount').value); if (isNaN(amount) || amount <= 0) return;
+  if (amount > (holdings[currentCoin] || 0)) { logMsg('Нет монет!', 'info'); return; }
+  balance += prices[currentCoin] * amount; holdings[currentCoin] -= amount;
+  logMsg(`Продано ${amount} ${currentCoin}`, 'sell'); updateUI(); saveGame();
+}
+
+function renderShop() {
+  const grid = document.getElementById('giftGrid'); if (!grid) return; grid.innerHTML = '';
+  GIFTS.filter(g => g.price > 0).forEach(g => {
+    const card = document.createElement('div'); card.className = 'gift-card';
+    card.innerHTML = `<div class="gift-emoji">${g.emoji}</div><div class="gift-name">${g.name}</div><div class="coin-price">$${g.price}</div><button class="gift-buy">КУПИТЬ</button>`;
+    card.querySelector('.gift-buy').onclick = () => {
+      if (balance < g.price) { logMsg('Нет денег!', 'info'); return; }
+      balance -= g.price; ownedGifts.push(g.id); updateUI(); renderShop(); renderProfile(); logMsg(`Куплен ${g.name}`, 'gift'); saveGame();
+    };
+    grid.appendChild(card);
+  });
+}
+
+function renderCraft() {
+  const grid = document.getElementById('craftGrid'); if (!grid) return; grid.innerHTML = '';
+  CRAFT_RECIPES.forEach(r => {
+    const result = GIFTS.find(g => g.id === r.result); let can = true; const reqs = {}; r.requires.forEach(id => reqs[id] = (reqs[id] || 0) + 1);
+    for (const [id, count] of Object.entries(reqs)) { if (ownedGifts.filter(g => g === id).length < count) can = false; }
+    let reqHtml = r.requires.map(id => `<span title="${GIFTS.find(x => x.id === id).name}">${GIFTS.find(x => x.id === id).emoji}</span>`).join(' + ');
+    const card = document.createElement('div'); card.className = 'gift-card';
+    card.innerHTML = `<div class="gift-emoji">${result.emoji}</div><div class="gift-name">${result.name}</div><div class="coin-price" style="margin-bottom:10px;">${reqHtml}</div><button class="gift-buy" ${!can ? 'disabled' : ''}>КРАФТ</button>`;
+    card.querySelector('.gift-buy').onclick = () => {
+      r.requires.forEach(id => { const i = ownedGifts.indexOf(id); if (i > -1) ownedGifts.splice(i, 1); });
+      ownedGifts.push(r.result); renderCraft(); renderShop(); renderProfile(); logMsg(`Скрафчен ${result.name}`, 'gift'); saveGame();
+    };
+    grid.appendChild(card);
+  });
+}
+
+function renderProfile() {
+  const grid = document.getElementById('myGifts'); if (!grid) return; grid.innerHTML = '';
+  const nameEl = document.getElementById('profileName'); if (nameEl) nameEl.textContent = playerName || "Трейдер";
+  const counts = {}; ownedGifts.forEach(id => counts[id] = (counts[id] || 0) + 1);
+  if (Object.keys(counts).length === 0) { grid.innerHTML = '<div style="color:#666; grid-column:1/-1;">Нет подарков</div>'; return; }
+  Object.entries(counts).forEach(([id, count]) => {
+    const g = GIFTS.find(x => x.id === id); if (!g) return;
+    const sellPrice = g.price > 0 ? Math.floor(g.price * 0.7) : 0;
+    const card = document.createElement('div'); card.className = 'gift-card';
+    card.innerHTML = `<div class="gift-emoji">${g.emoji}</div><div class="gift-name">${g.name}</div><div style="color:#ffd700; font-weight:bold;">x${count}</div>${sellPrice > 0 ? `<button class="gift-sell">ПРОДАТЬ (+$${sellPrice})</button>` : ''}`;
+    if (sellPrice > 0) {
+      card.querySelector('.gift-sell').onclick = () => {
+        const index = ownedGifts.indexOf(id);
+        if (index > -1) { ownedGifts.splice(index, 1); balance += sellPrice; updateUI(); renderProfile(); logMsg(`Продан ${g.name}`, 'sell'); saveGame(); }
+      };
+    }
+    grid.appendChild(card);
+  });
+}
+
+// ЗАПУСК
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.onclick = () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      tab.classList.add('active'); document.getElementById(tab.dataset.tab).classList.add('active');
+      if (tab.dataset.tab === 'shop') renderShop();
+      if (tab.dataset.tab === 'craft') renderCraft();
+      if (tab.dataset.tab === 'profile') renderProfile();
+    };
+  });
+
+  document.getElementById('startBtn').onclick = () => {
+    document.getElementById('intro').classList.add('hidden');
+    if (loadGame() && playerName) {
+      document.getElementById('mainGame').classList.remove('hidden');
+      renderCoinList(); updateUI(); drawChart(); renderShop(); renderCraft(); renderProfile();
+    } else {
+      document.getElementById('nameScreen').classList.remove('hidden');
+    }
+  };
+
+  document.getElementById('confirmNameBtn').onclick = () => {
+    const name = document.getElementById('nameInput').value.trim();
+    if (name.length < 2) { document.getElementById('nameError').textContent = "Слишком короткий ник"; return; }
+    playerName = name;
+    document.getElementById('nameScreen').classList.add('hidden');
+    document.getElementById('mainGame').classList.remove('hidden');
+    renderCoinList(); updateUI(); drawChart(); renderShop(); renderCraft(); renderProfile(); saveGame();
+  };
+
+  document.getElementById('buyBtn').onclick = buy;
+  document.getElementById('sellBtn').onclick = sell;
+
+  // ТАЙМЕРЫ (РАБОТАЮТ ВСЕГДА)
+  setInterval(updatePrices, 2000);
+  setInterval(triggerNews, 60000);
+});
+</script>
+</body>
+</html>
